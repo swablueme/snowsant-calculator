@@ -32,7 +32,8 @@ HELLO = r"""
 ALERT = r"""
 =============================================================
 |                                                           |
-|  如果遇到一启动就 Connection closed 的情况，可以稍后重试  |
+|  If you encounter Connection closed upon startup,         |
+|        you can try again later                            |
 |                                                           |
 ============================================================="""
 
@@ -47,30 +48,35 @@ def input_int(prompt, valid=None):
             if isinstance(valid, (range, list)):
                 valid = tuple(valid)
             if isinstance(valid, tuple):
-                assert value in valid, f"[!] 输入的值不在合法范围内：{valid}"
+                assert value in valid, f"[!] The entered value is not within the legal range：{valid}"
             if isinstance(valid, int):
-                assert value % valid == 0, f"[!] 输入的值需要是 {valid} 的倍数。"
+                assert value % valid == 0, f"[!] The entered value needs to be a multiple of {valid}"
             return value
         except AssertionError as e:
             print(Colors.RED + str(e) + Colors.RESET)
         except Exception:
-            print(Colors.RED + "[!] 输入有误，请重新输入。" + Colors.RESET)
+            print(Colors.RED +
+                  "[!] Incorrect input, please re-enter。" + Colors.RESET)
 
 
 def input_ints(prompt, nums, sum_to):
     while True:
         try:
             values = tuple(map(int, input(prompt).strip().split(" ")))
-            assert len(values) == nums, f"[!] 输入的数目不对，请重新输入。"
-            assert sum(values) == sum_to, f"[!] 进货总数量与顾客数量不符，请重新输入。"
+            assert len(
+                values) == nums, f"[!] The number entered is incorrect, please re-enter."
+            assert sum(
+                values) == sum_to, f"[!] The total purchase quantity does not match the customer quantity, please re-enter"
             return values
         except AssertionError as e:
             print(Colors.RED + str(e) + Colors.RESET)
         except Exception:
-            print(Colors.RED + "[!] 输入有误，请重新输入。" + Colors.RESET)
+            print(Colors.RED +
+                  "[!] Incorrect input, please re-enter" + Colors.RESET)
 
 
-good_stage = input_int("[*] 今日经营的商品是哪个阶段的商品？(1-4) ", range(1, 5))
+good_stage = input_int(
+    "[*] Which stage of the product is the product being sold today？(1-4) ", range(1, 5))
 
 if good_stage == 1:
     buy_drink = [20, 28, 38]
@@ -104,20 +110,24 @@ elif good_stage == 4:
     sell_base_snack = 200
     sell_base_token = 1000
 
-customer_drink = input_int("[*] 今日的饮品爱好者有多少？", 90)
-customer_snack = input_int("[*] 今日的餐点爱好者有多少？", 90)
-customer_token = input_int("[*] 今日的纪念品爱好者有多少？", 10)
+customer_drink = input_int("[*] How many drink lovers are there today?", 90)
+customer_snack = input_int("[*] How many meal lovers are there today?", 90)
+customer_token = input_int("[*] How many souvenir lovers are there today?", 10)
 customer = [customer_drink, customer_snack, customer_token]
 buy_prices = [buy_drink, buy_snack, buy_token]
 stock_drink = customer_drink
 stock_snack = customer_snack
 stock_token = customer_token
 
-remain_me = input_int("[*] 雪雉商店的纪念品库存有多少（不知道的话填 0 即可）？")
-remain_rival = input_int("[*] 时光商店的纪念品库存有多少（不知道的话填 0 即可）？")
-remain_strategy = input_int("[*] 是否允许用更少的当日收入换取更多的未来期望收入？需要更久的计算时间。0 为否，1 为是 (0/1) ", (0, 1))
+remain_me = input_int(
+    "[*] How much souvenir inventory does Snow Pheasant Store have (just fill in 0 if you don't know)？")
+remain_rival = input_int(
+    "[*] How much souvenir inventory does Time Store have (if you don't know, just fill in 0)?")
+remain_strategy = input_int(
+    "[*] Is it allowed to exchange less current day income for more expected future income? It takes longer to calculate. 0 means no, 1 means yes (0/1)", (0, 1))
 if remain_strategy:
-    print(Colors.RED + "[!] 请注意，后续的期望收益包括纪念品库存未来可能的收益。" + Colors.RESET)
+    print(Colors.RED +
+          "[!] Please note that subsequent expected returns include possible future returns on souvenir inventory." + Colors.RESET)
 
 # aaa = (30, 30, 30)
 # aab = (36, 36, 18)
@@ -213,7 +223,8 @@ def future_token_value(day, stock):
             __best_action = max(
                 __best_action,
                 future_token_sell(
-                    day, (my_stock + unit * ratio[0], rival_stock + unit * ratio[1])
+                    day, (my_stock + unit * ratio[0],
+                          rival_stock + unit * ratio[1])
                 )
                 - buy_token[my_strategy] * unit * ratio[0],
             )
@@ -305,7 +316,8 @@ def sell_action(gid, num, rival_num, info):
             income_rank = 0
             for _c, _n in zip(statement, rival_num):
                 _n += remain_rival * (gid == 2)
-                rival_customer_num = customer_base * sell_result(statement + (c,), _c)
+                rival_customer_num = customer_base * \
+                    sell_result(statement + (c,), _c)
                 rival_sold = min(rival_customer_num, _n)
                 rival_income = rival_sold * sell[gid][_c]
                 if rival_income > income:
@@ -325,7 +337,8 @@ def sell_action(gid, num, rival_num, info):
             if len(info) == 2 and None in info and statement[0] == statement[1]:
                 sameprice = income
         if sameprice is not None:
-            exp_income = (sum(incomes) - 0.5 * sameprice) / (len(incomes) - 0.5)
+            exp_income = (sum(incomes) - 0.5 * sameprice) / \
+                (len(incomes) - 0.5)
         else:
             exp_income = sum(incomes) / len(incomes)
         # print(c, incomes, sameprice, exp_income)
@@ -346,7 +359,8 @@ def sell_stage(clues, gid, nums, rival_nums, info):
     if (clues, gid, nums[gid:], rival_nums[gid:], info) in sell_stage_cache:
         return sell_stage_cache[(clues, gid, nums[gid:], rival_nums[gid:], info)]
 
-    best_income, best_choice = sell_action(gid, nums[gid], rival_nums[gid], info)
+    best_income, best_choice = sell_action(
+        gid, nums[gid], rival_nums[gid], info)
     best_income += sell_stage(clues, gid + 1, nums, rival_nums, ())[0]
 
     if clues:
@@ -461,9 +475,12 @@ def buy_action(clues, infos):
     for c in product(range(3), repeat=3):
         incomes = []
         for statement in statements:
-            drink_nums = stock_drink // 90 * buy_result(statement[0:2] + (c[0],), c[0])
-            snack_nums = stock_snack // 90 * buy_result(statement[2:4] + (c[1],), c[1])
-            token_nums = stock_token // 10 * buy_result(statement[4:5] + (c[2],), c[2])
+            drink_nums = stock_drink // 90 * \
+                buy_result(statement[0:2] + (c[0],), c[0])
+            snack_nums = stock_snack // 90 * \
+                buy_result(statement[2:4] + (c[1],), c[1])
+            token_nums = stock_token // 10 * \
+                buy_result(statement[4:5] + (c[2],), c[2])
             costs = (
                 drink_nums * buy_drink[c[0]]
                 + snack_nums * buy_snack[c[1]]
@@ -540,7 +557,8 @@ def buy_stage(clues, infos):
         and buy_conflict_checker(statement[4:5], infos[2])
     ]
 
-    buy_stage_cache[(clues, infos)] = (best_income, best_choice, len(statements))
+    buy_stage_cache[(clues, infos)] = (
+        best_income, best_choice, len(statements))
     return (best_income, best_choice, len(statements))
 
 
@@ -550,38 +568,48 @@ import sys
 
 
 def action_confirm():
-    input(Colors.GREY + "行动结束后按下回车键……" + Colors.RESET)
+    input(Colors.GREY +
+          "Press the Enter key after the action is completed..." + Colors.RESET)
     sys.stdout.write("\033[F")
     sys.stdout.write("\033[K")
 
 
-clues = input_int("[*] 请输入可打探的次数：", (4, 5, 6))
+clues = input_int(
+    "[*] Please enter the number of times you can find out：", (4, 5, 6))
 infos = ((), (), ())
-print("请稍等，正在计算中……")
+print("Please wait, calculation is in progress...")
 while True:
     ret = buy_stage(clues, infos)
-    print(Colors.GREEN + f"[+] 当前期望收益为：{ret[0]}" + Colors.RESET)
+    print(Colors.GREEN +
+          f"[+] The current expected return is：{ret[0]}" + Colors.RESET)
     if isinstance(ret[1], int):
-        goods = ["饮品", "餐点", "纪念品"][ret[1]]
-        print(Colors.YELLOW + f"[A] 请打探 {goods} 的信息（从上往下选择第一个未打探过的商店）" + Colors.RESET)
+        goods = ["Drinks", "Meals", "Souvenirs"][ret[1]]
+        print(Colors.YELLOW +
+              f"[A] Please inquire about {goods} (select the first unexplored store from top to bottom)" + Colors.RESET)
         action_confirm()
-        choice = input_int("[*] 请问该商店的进货策略是？1 保守，2 稳健，3 激进 (1-3) ", range(1, 4))
+        choice = input_int(
+            "[*] What is the store's purchasing strategy? 1 conservative, 2 steady, 3 aggressive (1-3)", range(1, 4))
         infos = list(infos)
         infos[ret[1]] = infos[ret[1]] + (choice - 1,)
         infos = tuple(infos)
         clues -= 1
     else:
-        strategy = [["保守", "稳健", "激进"][ret[1][i]] for i in range(3)]
-        print(Colors.YELLOW + "[A] 进货策略已确定：" + "，".join(strategy) + Colors.RESET)
+        strategy = [["conservative", "robust", "aggressive"][ret[1][i]]
+                    for i in range(3)]
+        print(Colors.YELLOW + "[A] The purchase strategy has been determined:" +
+              "，".join(strategy) + Colors.RESET)
         action_confirm()
         break
 
-print("[+] 请告知每种商品的进货数量，店与店之间用空格隔开。")
-print("[+] 注意，商店的次序需要是特定的顺序，而不是进货数量排行榜上的顺序。")
+print("[+] Please tell us the purchase quantity of each product, separated by spaces between stores.")
+print("[+] Note that the order of the store needs to be a specific order, not the order on the purchase quantity ranking list.")
 
-drink = input_ints("[*] 饮品进货数量（按顺序三个数分别是 雪雉商店、鸡尾酒商店、时光商店，中间用空格隔开）：", 3, customer_drink)
-snack = input_ints("[*] 餐点进货数量（按顺序三个数分别是 雪雉商店、冰淇淋商店、时光商店，中间用空格隔开）：", 3, customer_snack)
-token = input_ints("[*] 纪念品进货数量（按顺序两个数分别是 雪雉商店、时光商店，中间用空格隔开）：", 2, customer_token)
+drink = input_ints(
+    "[*] Drink purchase quantity (the three numbers in order are Snow Pheasant Store, Cocktail Store, Time Store, separated by spaces):", 3, customer_drink)
+snack = input_ints(
+    "[*] Meal purchase quantity (the three numbers in order are Snow Pheasant Store, Ice Cream Store, Time Store, separated by spaces):", 3, customer_snack)
+token = input_ints(
+    "[*] Purchase quantity of souvenirs (the two numbers in order are Snow Pheasant Store and Time Store, separated by spaces)", 2, customer_token)
 
 nums = (drink[0], snack[0], token[0])
 rival_nums = (drink[1:], snack[1:], token[1:])
@@ -589,16 +617,20 @@ rival_nums = (drink[1:], snack[1:], token[1:])
 cost = sum([nums[i] * buy_prices[i][ret[1][i]] for i in range(3)])
 income = 0
 
-print("饮品售卖阶段。")
+print("Drink sales stage.")
 info = ()
 while True:
     ret = sell_stage(clues, 0, nums, rival_nums, info)
-    print(Colors.GREEN + f"[+] 当前期望收益为：{ret[0] - cost + income}" + Colors.RESET)
+    print(Colors.GREEN +
+          f"[+] The current expected income is: {ret[0] - cost + income}" + Colors.RESET)
     if isinstance(ret[1], int):
-        print(Colors.YELLOW + f"[A] 请进行一次消息打探。" + Colors.RESET)
+        print(Colors.YELLOW +
+              f"[A] Please conduct a message inquiry." + Colors.RESET)
         action_confirm()
-        rival = input_int("[*] 请问打探到了哪个商店的信息？1 为鸡尾酒商店，2 为时光商店 (1-2) ", (1, 2))
-        price = input_int("[*] 请问他们给出的售价是？", sell_drink)
+        rival = input_int(
+            "[*] Which store did you get information about? 1 is a cocktail store, 2 is a time store (1-2)", (1, 2))
+        price = input_int(
+            "[*] What is the selling price they gave?", sell_drink)
         price_idx = list(sell_drink).index(price)
         if info == ():
             info = (None, None)
@@ -608,22 +640,28 @@ while True:
         clues -= 1
     else:
         price = sell_drink[ret[1][0]]
-        print(Colors.YELLOW + f"[A] 饮品售卖策略已确定。请设定价格为：{price}" + Colors.RESET)
+        print(Colors.YELLOW +
+              f"[A] The beverage sales strategy has been determined. Please set the price to: {price}" + Colors.RESET)
         action_confirm()
         break
-income += input_int("[*] 请输入饮品售卖收益（包括激励奖励）：")
+income += input_int(
+    "[*] Please enter the income from beverage sales (including incentive rewards):")
 
 
-print("餐品售卖阶段。")
+print("Meal sales stage。")
 info = ()
 while True:
     ret = sell_stage(clues, 1, nums, rival_nums, info)
-    print(Colors.GREEN + f"[+] 当前期望收益为：{ret[0] - cost + income}" + Colors.RESET)
+    print(Colors.GREEN +
+          f"[+] The current expected income is:：{ret[0] - cost + income}" + Colors.RESET)
     if isinstance(ret[1], int):
-        print(Colors.YELLOW + f"[A] 请进行一次消息打探。" + Colors.RESET)
+        print(Colors.YELLOW +
+              f"[A] Please conduct a message inquiry." + Colors.RESET)
         action_confirm()
-        rival = input_int("[*] 请问打探到了哪个商店的信息？1 为冰淇淋商店，2 为时光商店 (1-2) ", (1, 2))
-        price = input_int("[*] 请问他们给出的售价是？", sell_snack)
+        rival = input_int(
+            "[*] Which store did you get information about? 1 is the ice cream store, 2 is the time store (1-2) ", (1, 2))
+        price = input_int(
+            "[*] What is the selling price they gave?", sell_snack)
         price_idx = list(sell_snack).index(price)
         if info == ():
             info = (None, None)
@@ -633,47 +671,60 @@ while True:
         clues -= 1
     else:
         price = sell_snack[ret[1][0]]
-        print(Colors.YELLOW + f"[A] 餐品售卖策略已确定。请设定价格为：{price}" + Colors.RESET)
+        print(Colors.YELLOW +
+              f"[A] The food sales strategy has been determined. Please set the price to: {price}" + Colors.RESET)
         action_confirm()
         break
-income += input_int("[*] 请输入餐点售卖收益（包括激励奖励）：")
+income += input_int("[*] Please enter the income from meal sales (including incentive rewards):")
 
 
-print("纪念品售卖阶段。")
+print("Souvenir sales stage。")
 info = ()
 while True:
     ret = sell_stage(clues, 2, nums, rival_nums, info)
-    print(Colors.GREEN + f"[+] 当前期望收益为：{ret[0] - cost + income}" + Colors.RESET)
+    print(Colors.GREEN +
+          f"[+] The current expected income is:{ret[0] - cost + income}" + Colors.RESET)
     if isinstance(ret[1], int):
-        print(Colors.YELLOW + f"[A] 请进行一次消息打探。" + Colors.RESET)
+        print(Colors.YELLOW +
+              f"[A] Please conduct a message inquiry." + Colors.RESET)
         action_confirm()
-        price = input_int("[*] 请问时光商店给出的售价是？", sell_token)
+        price = input_int(
+            "[*] What is the selling price given by Time Store?", sell_token)
         price_idx = list(sell_token).index(price)
         info = (price_idx,)
         clues -= 1
     else:
         price = sell_token[ret[1][0]]
-        print(Colors.YELLOW + f"[A] 纪念品售卖策略已确定。请设定价格为：{price}" + Colors.RESET)
+        print(Colors.YELLOW +
+              f"[A] The souvenir sales strategy has been determined. Please set the price as: {price}" + Colors.RESET)
         action_confirm()
         break
-income += input_int("[*] 请输入纪念品售卖收益（包括激励奖励）：")
+income += input_int(
+    "[*] Please enter the income from souvenir sales (including incentive rewards):")
 
-sold_token_me = input_int("[*] 请输入雪雉商店的纪念品售卖数量：")
-sold_token_rival = input_int("[*] 请输入时光商店的纪念品售卖数量：")
+sold_token_me = input_int(
+    "[*] Please enter the quantity of souvenirs sold in the Snow Pheasant Shop:")
+sold_token_rival = input_int(
+    "[*] Please enter the quantity of souvenirs sold in Time Shop:")
 new_remain_me = remain_me + nums[-1] - sold_token_me
 new_remain_rival = remain_rival + rival_nums[-1][-1] - sold_token_rival
-print(Colors.GREEN + f"[+] 雪雉商店的纪念品库存为：{new_remain_me}" + Colors.RESET)
-print(Colors.GREEN + f"[+] 时光商店的纪念品库存为：{new_remain_rival}" + Colors.RESET)
+print(Colors.GREEN +
+      f"[+] The souvenir inventory of Snow Pheasant Shop is:{new_remain_me}" + Colors.RESET)
+print(Colors.GREEN +
+      f"[+] The souvenir inventory of Time Store is：{new_remain_rival}" + Colors.RESET)
 if new_remain_rival < 0:
-    print(Colors.RED + f"[!] 貌似时光商店之前是有库存的！没关系，他们现在大概率没库存了 =v=" + Colors.RESET)
-print("请记录好以上信息。")
+    print(Colors.RED + f"[!]It seems that Time Store had it in stock before! It doesn't matter, they most likely have it out of stock now =v=" + Colors.RESET)
+print("Please record the above information")
 
-print("最后……")
+print("Finally...")
 
-print(Colors.GREEN + f"[+] 实际收益为：{income - cost}" + Colors.RESET)
+print(Colors.GREEN +
+      f"[+] The actual income is：{income - cost}" + Colors.RESET)
 if new_remain_me:
-    future_value = future_value_exp(countdown - 1, (new_remain_me, new_remain_rival))
-    print(Colors.GREEN + f"[+] 库存的未来期望收益为：{future_value}" + Colors.RESET)
+    future_value = future_value_exp(
+        countdown - 1, (new_remain_me, new_remain_rival))
+    print(Colors.GREEN +
+          f"[+] The future expected return of the inventory is：{future_value}" + Colors.RESET)
 
-print("结束了！")
+print("It's over！")
 action_confirm()
